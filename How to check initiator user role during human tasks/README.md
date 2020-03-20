@@ -8,7 +8,9 @@ Actor Filter Definiton:
 role-escalation: takes the name of the step and the process instance ID to look at.  
 
 Actor Filter Implementation:  
+<pre><code>
 List<UserMembership> listOfUserMemberships = getAPIAccessor().getIdentityAPI().getUserMemberships(task.getExecutedBy(), 0, 100, UserMembershipCriterion.GROUP_NAME_ASC);  
 List<UserMembership> taskPerformerRole = listOfUserMemberships.stream().filter(m -> (CUSTOMER_MANAGER_ROLE_NAME.equalsIgnoreCase(m.getRoleName()) || SALES_MANAGER_ROLE_NAME.equalsIgnoreCase(m.getRoleName()))).collect(Collectors.toList());  
 
+</code></pre>
 
