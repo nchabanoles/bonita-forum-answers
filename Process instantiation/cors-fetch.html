@@ -1,0 +1,78 @@
+  <!doctype html>
+  <html>
+  <head>
+   <meta charset="utf-8">
+   <title>Demo</title>
+  </head>
+  <body>
+  <h1>CORS Using Fetch</h1>
+
+   <script>
+    function loginToBonita() {
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/x-www-form-urlencoded");
+
+      var urlencoded = new URLSearchParams();
+      urlencoded.append("password", "install");
+      urlencoded.append("redirect", "false");
+      urlencoded.append("username", "install");
+
+      var requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: urlencoded,
+        redirect: 'follow',
+        credentials: 'include'
+      };
+
+     return fetch("http://127.0.0.3:18219/bonita/loginservice", requestOptions)
+     .then(
+        result => {
+          return getAuthToken();
+        })
+      .catch(error => console.log('Login error:', error));
+    }
+
+
+    function getAuthToken() {
+      var myHeaders = new Headers();
+      var requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        credentials: 'include'
+      };  
+
+      return fetch("http://127.0.0.3:18219/bonita/API/system/session/1", requestOptions)
+          .then(response => {
+            return response.headers.get('x-bonita-api-token');
+          })
+          .catch(error => console.log('Unable to retrieve authentication token from session:', error));
+    }
+
+    function startProcess(token) {
+
+    var formData = {"checkListInput": [{"name" : "Grocery shopping", "description" : "Buy some stuff", "dueDate" : "2020-04-03T00:00:00.000Z"}, {"name" : "House cleaning", "description" : "Put some order in the house before guests arrive", "dueDate" : "2020-04-03T00:00:00.000Z"}]};
+
+      var myHeaders = new Headers();
+        myHeaders.append("X-Bonita-API-Token", token);
+        myHeaders.append("Content-Type", 'application/json');
+        
+        var requestOptions = {
+          method: 'POST',
+          headers: myHeaders,
+          credentials: 'include',
+          body: JSON.stringify(formData)
+        };
+
+
+       return fetch("http://127.0.0.3:18219/bonita/API/bpm/process/6948611233195621493/instantiation", requestOptions)
+          .then(response => response.text())
+          .then(result => console.log('Process started:', result))
+          .catch(error => console.log('Unable to start process:', error));
+    }
+
+    loginToBonita().then(authToken => startProcess(authToken));
+
+   </script>
+  </body>
+  </html>
